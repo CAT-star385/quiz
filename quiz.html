@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字義測驗・線上免費中文字義練習</title>
+<meta name="description" content="免費中文字義測驗工具,看詞選意思、看意思選字,內建多套題庫,支援老師出題、自訂題庫。">
+<meta name="theme-color" content="#7a5195">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%237a5195' rx='20'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900'%3E義%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6e3; --paper: #fffdf5; --paper2: #faf3df; --ink: #2b2b2b; --ink-soft: #5c503a;
+    --accent: #d94436; --primary: #7a5195; --primary-dark: #5d3d72;
+    --secondary: #f4a261; --success: #4a9d6f; --danger: #c0392b;
+    --muted: #9b9b9b; --line: #d8c9a3;
+    --shadow: 0 4px 16px rgba(60, 40, 20, 0.12); --shadow-lg: 0 8px 32px rgba(60, 40, 20, 0.18);
+    --fs-base: 16px;
+  }
+  [data-theme="dark"] {
+    --bg: #1a1d23; --paper: #25292f; --paper2: #2d323a;
+    --ink: #e8e6e1; --ink-soft: #b5b0a6;
+    --accent: #e96b5e; --primary: #a679c4; --primary-dark: #c094db;
+    --secondary: #f4b574; --success: #6cc28e; --danger: #e74c3c;
+    --muted: #7a7468; --line: #3a3f47;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.4); --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+  [data-fs="small"] { --fs-base: 14px; }
+  [data-fs="large"] { --fs-base: 18px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%; font-family: 'Noto Sans TC', sans-serif;
+    color: var(--ink); background: var(--bg); font-size: var(--fs-base);
+    -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(244, 162, 97, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(122, 81, 149, 0.10) 0%, transparent 40%),
+      repeating-linear-gradient(45deg, transparent 0, transparent 60px, rgba(0,0,0,0.015) 60px, rgba(0,0,0,0.015) 61px);
+  }
+  [data-theme="dark"] body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(244, 162, 97, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(166, 121, 196, 0.08) 0%, transparent 40%);
+  }
+  .app { max-width: 760px; margin: 0 auto; padding: 16px 18px 50px; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 4px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+  .brand {
+    font-family: 'Noto Serif TC', serif; font-weight: 900;
+    font-size: 1.15em; color: var(--primary-dark); letter-spacing: 3px;
+  }
+  .brand .deco { color: var(--accent); margin: 0 4px; }
+  .topbar-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .icon-btn {
+    background: var(--paper); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 99px; padding: 6px 12px; font-family: inherit;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 4px; box-shadow: var(--shadow);
+  }
+  .icon-btn:hover { background: var(--paper2); transform: translateY(-1px); }
+  header { text-align: center; margin-bottom: 18px; padding: 12px 0 4px; }
+  header h1 {
+    font-family: 'Noto Serif TC', serif; font-weight: 900;
+    font-size: clamp(24px, 4vw, 36px); color: var(--primary-dark);
+    letter-spacing: 4px; margin-bottom: 4px;
+  }
+  header h1 .deco { color: var(--accent); font-size: 0.85em; margin: 0 8px; }
+  header .sub { color: var(--muted); font-size: 13px; letter-spacing: 2px; }
+  .panel {
+    background: var(--paper); border-radius: 18px; box-shadow: var(--shadow-lg);
+    padding: 28px 22px 24px; border: 1px solid var(--line);
+    position: relative; overflow: hidden; transition: background 0.3s;
+  }
+  .panel::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  }
+  .setup-section { margin-bottom: 18px; }
+  .setup-section-title {
+    font-size: 13px; font-weight: 700; color: var(--primary);
+    letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .seg-control { display: flex; background: var(--paper2); border-radius: 99px; padding: 3px; gap: 2px; }
+  .seg-control button {
+    flex: 1; background: transparent; border: none; border-radius: 99px;
+    padding: 10px; font-family: inherit; font-size: 13px; font-weight: 700;
+    color: var(--ink); cursor: pointer; transition: all 0.2s;
+  }
+  .seg-control button.active {
+    background: var(--primary); color: white; box-shadow: 0 2px 6px rgba(122, 81, 149, 0.3);
+  }
+  .mode-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .mode-btn {
+    background: var(--paper2); border: 2px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; font-family: inherit; font-size: 15px;
+    text-align: left; transition: all 0.2s; color: var(--ink);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mode-btn:hover { background: var(--paper); transform: translateX(3px); }
+  .mode-btn.active {
+    background: var(--paper); border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(122, 81, 149, 0.18);
+  }
+  .mode-btn .emoji { font-size: 22px; }
+  .mode-btn .label { font-weight: 700; }
+  .mode-btn .desc { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .mode-btn .text-wrap { display: flex; flex-direction: column; }
+  .bank-select {
+    width: 100%; background: var(--paper2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; font-family: inherit; font-size: 14px;
+    font-weight: 700; color: var(--ink); cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9b9b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  }
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 15px; border: none;
+    border-radius: 12px; padding: 12px 20px; cursor: pointer;
+    transition: all 0.15s; letter-spacing: 1px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,0.1); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-secondary { background: var(--secondary); color: white; }
+  .btn-ghost { background: var(--paper2); color: var(--ink); }
+  .btn-ghost:hover:not(:disabled) { background: var(--line); }
+  .btn-big {
+    width: 100%; padding: 16px; font-size: 18px; font-weight: 900;
+    letter-spacing: 4px; box-shadow: 0 4px 0 var(--primary-dark);
+  }
+  .stats-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-chip {
+    flex: 1; min-width: 80px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .stat-chip .label { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  .stat-chip .value { font-size: 20px; font-weight: 900; color: var(--primary-dark); }
+  .stat-chip.correct .value { color: var(--success); }
+  .stat-chip.wrong .value { color: var(--danger); }
+  .progress-bar {
+    height: 10px; background: var(--paper2); border-radius: 99px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 99px; transition: width 0.4s ease; width: 0%;
+  }
+  .q-tag {
+    display: inline-block; font-size: 12px; letter-spacing: 3px;
+    color: var(--primary); font-weight: 700; background: var(--paper2);
+    padding: 4px 12px; border-radius: 99px; margin-bottom: 12px;
+  }
+  .q-tag.t2 { color: var(--secondary); background: rgba(244, 162, 97, 0.15); }
+  .question {
+    background: linear-gradient(135deg, var(--paper) 0%, var(--paper2) 100%);
+    border-radius: 14px; padding: 22px 18px; margin-bottom: 16px;
+    border: 1px dashed var(--line); min-height: 100px;
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; text-align: center;
+  }
+  .q-word {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(28px, 5vw, 40px); font-weight: 700;
+    color: var(--ink); letter-spacing: 6px; line-height: 1.3;
+  }
+  .q-meaning {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(17px, 2.8vw, 21px); line-height: 1.6;
+    color: var(--ink); padding: 0 4px;
+  }
+  .pos-tag {
+    display: inline-block; background: var(--ink); color: var(--paper);
+    font-size: 12px; font-weight: 700; padding: 2px 10px;
+    border-radius: 6px; margin-bottom: 8px; letter-spacing: 4px;
+  }
+  .pos-tag.名 { background: #2c7da0; color: white; }
+  .pos-tag.動 { background: #c0392b; color: white; }
+  .pos-tag.形 { background: #7a5195; color: white; }
+  .pos-tag.量 { background: #d68910; color: white; }
+  .pos-tag.副 { background: #4a9d6f; color: white; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: var(--paper); border: 2px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; font-family: inherit; font-size: 15px;
+    line-height: 1.5; color: var(--ink); text-align: left; transition: all 0.15s;
+    display: flex; align-items: flex-start; gap: 12px; min-height: 52px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+  }
+  .opt-btn:hover:not(:disabled) {
+    background: var(--paper2); border-color: var(--primary); transform: translateX(2px);
+  }
+  .opt-btn:disabled { cursor: default; }
+  .opt-btn .letter {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper2); color: var(--primary-dark);
+    font-weight: 900; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 14px;
+  }
+  .opt-btn .text { flex: 1; padding-top: 2px; }
+  .opt-btn .icon { font-size: 20px; display: none; }
+  .opt-btn.correct { background: rgba(74, 157, 111, 0.15); border-color: var(--success); color: var(--success); }
+  .opt-btn.correct .letter { background: var(--success); color: white; }
+  .opt-btn.correct .icon { display: inline; color: var(--success); }
+  .opt-btn.wrong { background: rgba(217, 68, 54, 0.15); border-color: var(--danger); color: var(--danger); }
+  .opt-btn.wrong .letter { background: var(--danger); color: white; }
+  .opt-btn.wrong .icon { display: inline; color: var(--danger); }
+  .opt-btn.dimmed { opacity: 0.5; }
+  .action-row { display: flex; gap: 10px; margin-top: 14px; }
+  .action-row .btn { flex: 1; }
+  .btn-quit {
+    background: transparent; color: var(--muted); border: 1px solid var(--line);
+    box-shadow: none; font-size: 13px; padding: 10px; width: 100%; margin-top: 10px;
+    cursor: pointer; border-radius: 12px; font-family: inherit; font-weight: 700;
+  }
+  .btn-quit:hover { background: var(--paper2); color: var(--ink); }
+  .result-circle {
+    width: 150px; height: 150px; border-radius: 50%;
+    margin: 8px auto 18px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: conic-gradient(var(--success) calc(var(--p) * 1%), var(--paper2) 0);
+    position: relative;
+  }
+  .result-circle::after {
+    content: ""; position: absolute; inset: 12px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .result-circle .score {
+    position: relative; z-index: 1; font-family: 'Noto Serif TC', serif;
+    font-size: 38px; font-weight: 900; color: var(--primary-dark); line-height: 1;
+  }
+  .result-circle .score-label {
+    position: relative; z-index: 1; font-size: 13px;
+    color: var(--muted); letter-spacing: 2px; margin-top: 4px;
+  }
+  .result-title {
+    text-align: center; font-family: 'Noto Serif TC', serif;
+    font-size: 22px; color: var(--primary-dark); margin-bottom: 8px; letter-spacing: 3px;
+  }
+  .result-summary { text-align: center; color: var(--muted); margin-bottom: 18px; letter-spacing: 1px; }
+  .wrong-section { margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--line); }
+  .wrong-title { font-weight: 700; color: var(--accent); margin-bottom: 12px; font-size: 15px; letter-spacing: 2px; }
+  .wrong-list { display: flex; flex-direction: column; gap: 8px; }
+  .wrong-item {
+    background: rgba(217, 68, 54, 0.08); border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 8px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .wrong-item .w { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+  .wrong-item .m { color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+  .result-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .result-actions .btn { flex: 1; min-width: 120px; }
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; animation: fadeIn 0.2s ease;
+  }
+  .modal-card {
+    background: var(--paper); border-radius: 18px; padding: 22px 20px;
+    max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg); border: 1px solid var(--line);
+    animation: fadeIn 0.3s ease;
+  }
+  .modal-title {
+    font-family: 'Noto Serif TC', serif; color: var(--primary-dark);
+    font-size: 20px; margin-bottom: 8px; letter-spacing: 2px;
+  }
+  .modal-desc { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 12px; }
+  textarea {
+    width: 100%; min-height: 180px; padding: 12px;
+    border: 2px solid var(--line); border-radius: 10px;
+    font-family: inherit; font-size: 14px; line-height: 1.7;
+    background: var(--paper2); color: var(--ink); resize: vertical;
+  }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--primary); }
+  .modal-error {
+    background: rgba(217, 68, 54, 0.12); border-left: 4px solid var(--accent);
+    color: var(--accent); padding: 10px 14px; border-radius: 8px;
+    margin-top: 10px; font-size: 13px; line-height: 1.6;
+  }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper);
+    padding: 10px 20px; border-radius: 99px; font-size: 14px; font-weight: 700;
+    z-index: 200; box-shadow: var(--shadow-lg);
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+    pointer-events: none;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translate(-50%, -20px); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .panel, .question, .options { animation: fadeIn 0.35s ease; }
+  .footer-link { text-align: center; margin-top: 18px; color: var(--muted); font-size: 13px; }
+  .footer-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
+  .footer-link a:hover { text-decoration: underline; }
+  @media (max-width: 500px) {
+    .app { padding: 12px 10px 30px; }
+    .panel { padding: 22px 14px 18px; }
+    .opt-btn { font-size: 14px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="deco">◆</span>字義測驗</div>
+    <div class="topbar-tools">
+      <button class="icon-btn" id="btnTeacher">👩‍🏫 老師出題</button>
+      <button class="icon-btn" id="btnTheme">🌙</button>
+    </div>
+  </div>
+
+  <header>
+    <h1><span class="deco">◆</span>字義測驗<span class="deco">◆</span></h1>
+    <div class="sub">看 詞 ・ 選 意 思 ・ 看 意 思 ・ 選 詞</div>
+  </header>
+
+  <div class="panel" id="setupPanel">
+    <div class="setup-section">
+      <div class="setup-section-title">① 選擇題型</div>
+      <div class="mode-grid" id="modeGrid">
+        <button class="mode-btn active" data-mode="meaning">
+          <span class="emoji">📖</span>
+          <span class="text-wrap"><span class="label">看詞選意思</span><span class="desc">顯示詞語,選出正確解釋</span></span>
+        </button>
+        <button class="mode-btn" data-mode="word">
+          <span class="emoji">🔤</span>
+          <span class="text-wrap"><span class="label">看意思選字</span><span class="desc">顯示解釋,選出對應詞語</span></span>
+        </button>
+        <button class="mode-btn" data-mode="mixed">
+          <span class="emoji">🎲</span>
+          <span class="text-wrap"><span class="label">綜合測驗</span><span class="desc">兩種題型隨機混合</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-section-title">② 選擇題庫</div>
+      <select class="bank-select" id="bankSelect"></select>
+      <div style="margin-top:8px; text-align:right;">
+        <button class="icon-btn" id="btnOpenCustom">✏️ 自訂題庫</button>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-section-title">③ 題數</div>
+      <div class="seg-control" id="segCount">
+        <button data-v="10" class="active">10 題</button>
+        <button data-v="20">20 題</button>
+        <button data-v="30">30 題</button>
+        <button data-v="0">全部</button>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-section-title">④ 字體大小</div>
+      <div class="seg-control" id="segFontSize">
+        <button data-v="small">小</button>
+        <button data-v="medium" class="active">中</button>
+        <button data-v="large">大</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-big" id="btnStart">開 始 測 驗</button>
+  </div>
+
+  <div class="panel" id="quizPanel" style="display:none;">
+    <div class="stats-row">
+      <div class="stat-chip"><div class="label">進度</div><div class="value" id="sProgress">0/0</div></div>
+      <div class="stat-chip correct"><div class="label">答對</div><div class="value" id="sCorrect">0</div></div>
+      <div class="stat-chip wrong"><div class="label">答錯</div><div class="value" id="sWrong">0</div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <span class="q-tag" id="qTag">題型</span>
+    <div class="question" id="qContent"></div>
+    <div class="options" id="optBox"></div>
+    <div class="action-row">
+      <button class="btn btn-ghost" id="btnSkip">跳過</button>
+      <button class="btn btn-primary" id="btnNext" disabled>下一題 →</button>
+    </div>
+    <button class="btn-quit" id="btnQuit">結束測驗</button>
+  </div>
+
+  <div class="panel" id="resultPanel" style="display:none;">
+    <div class="result-title" id="rTitle">📊 測驗結果</div>
+    <div class="result-circle" id="rCircle" style="--p:0;">
+      <div class="score" id="rScore">0</div>
+      <div class="score-label">分</div>
+    </div>
+    <div class="result-summary" id="rSummary"></div>
+    <div class="wrong-section" id="wrongSection" style="display:none;">
+      <div class="wrong-title">📝 答錯的題目</div>
+      <div class="wrong-list" id="wrongList"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-ghost" id="btnRetryWrong" style="display:none;">🔄 只考錯題</button>
+      <button class="btn btn-secondary" id="btnRestart">↻ 再測一次</button>
+      <button class="btn btn-primary" id="btnBackHome">回首頁</button>
+    </div>
+  </div>
+
+  <div class="footer-link">
+    想練聽寫? <a href="./">→ 注音聽寫練習</a>
+  </div>
+</div>
+
+<!-- 自訂題庫對話框 -->
+<div class="modal" id="customModal" style="display:none;">
+  <div class="modal-card">
+    <h2 class="modal-title">✏️ 自訂字義題庫</h2>
+    <p class="modal-desc">
+      每行輸入「<b>詞語|解釋</b>」(用 | 分隔),也可加詞性。<br>
+      範例:<code style="background:var(--paper2); padding:2px 6px; border-radius:4px;">勤勞|形|認真努力做事</code> 或 <code style="background:var(--paper2); padding:2px 6px; border-radius:4px;">勤勞|認真努力做事</code><br>
+      至少需要 4 題(才能產生 4 選 1)。
+    </p>
+    <textarea id="customInput" placeholder="勤勞|形|認真努力做事&#10;謙虛|形|不自滿、不誇大&#10;舉一反三|動|從一件事推知其他類似的事&#10;鴉雀無聲|形|非常安靜、沒有聲音"></textarea>
+    <div class="modal-error" id="customError" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnCancelCustom">取消</button>
+      <button class="btn btn-primary" id="btnApplyCustom">套用</button>
+    </div>
+  </div>
+</div>
+
+<!-- 老師出題對話框 -->
+<div class="modal" id="teacherModal" style="display:none;">
+  <div class="modal-card">
+    <h2 class="modal-title">👩‍🏫 老師出題</h2>
+    <p class="modal-desc">
+      輸入「詞語|意思」(每行一個),產生<b>專屬連結</b>傳給學生。<br>
+      學生開啟連結會自動載入您的考題。
+    </p>
+    <input type="text" id="teacherTitle" placeholder="題目名稱(選填) 例如:六年甲班 字義小考" style="width:100%; padding:10px 14px; border:2px solid var(--line); border-radius:10px; background:var(--paper2); color:var(--ink); font-family:inherit; font-size:14px; margin-bottom:10px;">
+    <textarea id="teacherInput" placeholder="勤勞|認真努力做事&#10;謙虛|不自滿、不誇大"></textarea>
+    <div class="modal-error" id="teacherError" style="display:none;"></div>
+    <div id="teacherResult" style="display:none; margin-top:14px; padding:14px; background:var(--paper2); border-radius:10px; border:1px solid var(--line);">
+      <div style="font-weight:700; color:var(--primary); margin-bottom:8px; font-size:14px;">✅ 連結已產生!</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input type="text" id="teacherUrl" readonly style="flex:1; padding:10px; border:2px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); font-family:monospace; font-size:12px;">
+        <button class="btn btn-primary" id="btnCopyTeacherUrl" style="padding:10px 16px;">複製</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnCloseTeacher">關閉</button>
+      <button class="btn btn-primary" id="btnGenerateLink">✨ 產生連結</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BANKS = {
+  lesson1: {
+    name: "📕 預設一(24 題)",
+    items: [
+      { words:["黝黑"], pos:"形", meaning:"微青黑色" },
+      { words:["解釋","詮釋"], pos:"動", meaning:"解說、說明" },
+      { words:["釋懷","盡釋前嫌"], pos:"動", meaning:"解除、排解" },
+      { words:["釋放","假釋"], pos:"動", meaning:"赦免、放開" },
+      { words:["臂膀","臂膊"], pos:"名", meaning:"人體由肩膀到手腕間的部位" },
+      { words:["白皙"], pos:"形", meaning:"皮膚白" },
+      { words:["手腕","扼腕"], pos:"名", meaning:"前臂與手掌相連的關節部位" },
+      { words:["娓娓道來"], pos:"形", meaning:"形容說話滔滔不絕的樣子" },
+      { words:["藥劑","殺蟲劑"], pos:"名", meaning:"經調配而成的藥品或化學製品" },
+      { words:["調劑"], pos:"動", meaning:"調和" },
+      { words:["三劑中藥"], pos:"量", meaning:"計算經過調配後的藥物的單位" },
+      { words:["輪廓","耳廓"], pos:"名", meaning:"物體的外緣周圍" },
+      { words:["宏廓","寥廓"], pos:"形", meaning:"廣闊、寬大" },
+      { words:["鼻子"], pos:"名", meaning:"動物的呼吸器官之一,也是嗅覺器官" },
+      { words:["六呎"], pos:"量", meaning:"英制計算長度單位" },
+      { words:["玫瑰露","果子露"], pos:"名", meaning:"芳香可飲的酒或液體" },
+      { words:["顯露","暴露"], pos:"動", meaning:"表現、顯現" },
+      { words:["謬誤"], pos:"名", meaning:"錯誤" },
+      { words:["謬論","荒謬"], pos:"形", meaning:"荒唐、不實" },
+      { words:["瀑布"], pos:"名", meaning:"從高處直瀉而下的水流" },
+      { words:["三輯"], pos:"量", meaning:"計算叢書或期刊出版的單位" },
+      { words:["輯錄","編輯"], pos:"動", meaning:"蒐錄後整理,多用於編書" },
+      { words:["邏輯"], pos:"名", meaning:"道理、法則" },
+      { words:["巡邏","偵邏"], pos:"動", meaning:"巡察" },
+    ],
+  },
+  idioms: {
+    name: "🎯 成語字義(40 題)",
+    items: [
+      { words:["一目了然"], pos:"形", meaning:"一眼就看得清楚明白" },
+      { words:["七上八下"], pos:"形", meaning:"心情起伏不定" },
+      { words:["三心二意"], pos:"形", meaning:"猶豫不決" },
+      { words:["五花八門"], pos:"形", meaning:"花樣繁多" },
+      { words:["九牛一毛"], pos:"形", meaning:"比喻極為微少" },
+      { words:["十全十美"], pos:"形", meaning:"完美無缺" },
+      { words:["千變萬化"], pos:"形", meaning:"變化非常多" },
+      { words:["一帆風順"], pos:"形", meaning:"事情進行得非常順利" },
+      { words:["五彩繽紛"], pos:"形", meaning:"色彩繁多而美麗" },
+      { words:["半信半疑"], pos:"形", meaning:"既相信又懷疑" },
+      { words:["變幻莫測"], pos:"形", meaning:"變化莫測,難以預料" },
+      { words:["不勞而獲"], pos:"動", meaning:"不工作就有收穫" },
+      { words:["不可思議"], pos:"形", meaning:"無法想像、難以理解" },
+      { words:["出類拔萃"], pos:"形", meaning:"才能傑出、超越同類" },
+      { words:["川流不息"], pos:"形", meaning:"像河水般連續不斷" },
+      { words:["得心應手"], pos:"形", meaning:"心裡想到的,手就能做到" },
+      { words:["獨一無二"], pos:"形", meaning:"獨特、沒有第二個" },
+      { words:["耳目一新"], pos:"形", meaning:"使人感到新鮮、有新意" },
+      { words:["風和日麗"], pos:"形", meaning:"天氣晴朗、風光美好" },
+      { words:["刮目相看"], pos:"動", meaning:"用新眼光看待對方" },
+      { words:["花言巧語"], pos:"名", meaning:"動聽卻不誠實的話" },
+      { words:["恍然大悟"], pos:"動", meaning:"突然完全明白" },
+      { words:["井底之蛙"], pos:"名", meaning:"見識淺薄的人" },
+      { words:["舉一反三"], pos:"動", meaning:"從一件事推知其他類似的事" },
+      { words:["狼吞虎嚥"], pos:"形", meaning:"形容吃東西又急又猛" },
+      { words:["理直氣壯"], pos:"形", meaning:"理由充分,態度自信" },
+      { words:["絡繹不絕"], pos:"形", meaning:"前後相接連不斷" },
+      { words:["目不轉睛"], pos:"形", meaning:"注意力非常集中" },
+      { words:["莫名其妙"], pos:"形", meaning:"無法理解或說明" },
+      { words:["迫不及待"], pos:"形", meaning:"急切地無法等待" },
+      { words:["七嘴八舌"], pos:"形", meaning:"形容人多嘴雜" },
+      { words:["全神貫注"], pos:"形", meaning:"集中所有精神" },
+      { words:["日新月異"], pos:"形", meaning:"進步、變化快速" },
+      { words:["如願以償"], pos:"動", meaning:"願望實現" },
+      { words:["心曠神怡"], pos:"形", meaning:"心情舒暢、精神愉快" },
+      { words:["鴉雀無聲"], pos:"形", meaning:"非常安靜、沒有聲音" },
+      { words:["一鳴驚人"], pos:"動", meaning:"一下子就有驚人表現" },
+      { words:["異口同聲"], pos:"形", meaning:"大家說的話完全相同" },
+      { words:["勇往直前"], pos:"動", meaning:"勇敢地向前邁進" },
+      { words:["精益求精"], pos:"形", meaning:"已經很好還要更好" },
+    ],
+  },
+  adjective: {
+    name: "📖 常用形容詞(30 題)",
+    items: [
+      { words:["美麗"], pos:"形", meaning:"漂亮、好看" },
+      { words:["善良"], pos:"形", meaning:"心地好、和善" },
+      { words:["勇敢"], pos:"形", meaning:"有膽量、不怕困難" },
+      { words:["聰明"], pos:"形", meaning:"頭腦靈活、學東西快" },
+      { words:["溫柔"], pos:"形", meaning:"態度和順、性格溫和" },
+      { words:["認真"], pos:"形", meaning:"做事仔細、用心" },
+      { words:["活潑"], pos:"形", meaning:"生動、有朝氣" },
+      { words:["開朗"], pos:"形", meaning:"性格樂觀、明朗" },
+      { words:["害羞"], pos:"形", meaning:"不好意思、靦腆" },
+      { words:["驕傲"], pos:"形", meaning:"自以為了不起;也指引以為榮" },
+      { words:["謙虛"], pos:"形", meaning:"不自滿、不誇大" },
+      { words:["誠實"], pos:"形", meaning:"真實不說謊" },
+      { words:["耐心"], pos:"名", meaning:"忍耐、不急躁的心" },
+      { words:["細心"], pos:"形", meaning:"做事仔細周到" },
+      { words:["粗心"], pos:"形", meaning:"不仔細、容易疏忽" },
+      { words:["懶惰"], pos:"形", meaning:"不勤勞、不愛做事" },
+      { words:["勤勞"], pos:"形", meaning:"認真努力做事" },
+      { words:["嚴肅"], pos:"形", meaning:"態度認真、莊重" },
+      { words:["幽默"], pos:"形", meaning:"有趣、引人發笑" },
+      { words:["熱情"], pos:"形", meaning:"態度親切、有熱忱" },
+      { words:["冷漠"], pos:"形", meaning:"態度冷淡、不關心" },
+      { words:["興奮"], pos:"形", meaning:"情緒激動而高興" },
+      { words:["緊張"], pos:"形", meaning:"精神高度集中、有壓力" },
+      { words:["輕鬆"], pos:"形", meaning:"沒有壓力、自在" },
+      { words:["乾淨"], pos:"形", meaning:"清潔、沒有污垢" },
+      { words:["骯髒"], pos:"形", meaning:"不乾淨、有污垢" },
+      { words:["寬闊"], pos:"形", meaning:"寬廣、面積大" },
+      { words:["狹窄"], pos:"形", meaning:"寬度小" },
+      { words:["明亮"], pos:"形", meaning:"光線充足、清晰" },
+      { words:["黑暗"], pos:"形", meaning:"光線不足、暗淡" },
+    ],
+  },
+};
+
+const $ = id => document.getElementById(id);
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickN(pool, exclude, n) { return shuffle(pool.filter(x => !exclude.includes(x))).slice(0, n); }
+function loadSetting(k, d) { try { const v = localStorage.getItem(k); return v===null?d:JSON.parse(v); } catch(e){return d;} }
+function saveSetting(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+let settings = {
+  mode: loadSetting('q_mode', 'meaning'),
+  count: loadSetting('q_count', 10),
+  fontSize: loadSetting('q_fontSize', 'medium'),
+  theme: loadSetting('q_theme', 'light'),
+  bank: loadSetting('q_bank', 'lesson1'),
+};
+document.documentElement.setAttribute('data-theme', settings.theme);
+document.documentElement.setAttribute('data-fs', settings.fontSize);
+
+const customItems = loadSetting('q_customItems', []);
+if (customItems.length > 0) {
+  BANKS.custom = { name: `✏️ 自訂題庫(${customItems.length} 題)`, items: customItems };
+}
+
+function rebuildBankSelect() {
+  const sel = $('bankSelect');
+  sel.innerHTML = '';
+  for (const key of Object.keys(BANKS)) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = BANKS[key].name;
+    if (key === settings.bank) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+$('bankSelect').addEventListener('change', () => {
+  settings.bank = $('bankSelect').value;
+  saveSetting('q_bank', settings.bank);
+});
+
+function setupSegControl(elId, key, applyFn) {
+  const el = $(elId);
+  el.querySelectorAll('button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.v == String(settings[key]));
+    btn.addEventListener('click', () => {
+      el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const v = btn.dataset.v;
+      const val = (key === 'fontSize') ? v : (isNaN(v) ? v : parseInt(v, 10));
+      settings[key] = val;
+      saveSetting('q_'+key, val);
+      if (applyFn) applyFn(val);
+    });
+  });
+}
+setupSegControl('segCount', 'count');
+setupSegControl('segFontSize', 'fontSize', v => document.documentElement.setAttribute('data-fs', v));
+
+document.querySelectorAll('#modeGrid .mode-btn').forEach(btn => {
+  btn.classList.toggle('active', btn.dataset.mode === settings.mode);
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#modeGrid .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    settings.mode = btn.dataset.mode;
+    saveSetting('q_mode', settings.mode);
+  });
+});
+
+function updateThemeBtn() { $('btnTheme').textContent = settings.theme === 'dark' ? '☀️' : '🌙'; }
+updateThemeBtn();
+$('btnTheme').addEventListener('click', () => {
+  settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', settings.theme);
+  saveSetting('q_theme', settings.theme);
+  updateThemeBtn();
+});
+
+let state = { questions: [], idx: 0, correct: 0, wrong: 0, wrongList: [], answered: false };
+
+function buildQuestion(entry, type, allEntries) {
+  if (type === 'meaning') {
+    const wrongMeanings = pickN(allEntries.filter(e => e !== entry).map(e => e.meaning), [entry.meaning], 3);
+    const options = shuffle([entry.meaning, ...wrongMeanings]);
+    return { type: 'meaning', words: entry.words, pos: entry.pos, meaning: entry.meaning, options, answer: entry.meaning };
+  } else {
+    const answer = entry.words[0];
+    const others = allEntries.filter(e => e !== entry);
+    const samePos = shuffle(others.filter(e => e.pos === entry.pos));
+    const diffPos = shuffle(others.filter(e => e.pos !== entry.pos));
+    const wrongEntries = [...samePos, ...diffPos].slice(0, 3);
+    const options = shuffle([
+      { word: answer, correct: true },
+      ...wrongEntries.map(e => ({ word: e.words[0], correct: false }))
+    ]);
+    return { type: 'word', meaning: entry.meaning, pos: entry.pos, words: entry.words, options, answer };
+  }
+}
+
+function startQuiz(retryFromWrong) {
+  const bank = BANKS[settings.bank];
+  if (!bank) return;
+  let pool = retryFromWrong && state.wrongList.length > 0
+    ? state.wrongList.map(w => ({ words: w.words, pos: w.pos, meaning: w.meaning }))
+    : bank.items;
+  let picks = shuffle(pool);
+  if (settings.count > 0 && picks.length > settings.count) picks = picks.slice(0, settings.count);
+  state.questions = picks.map(entry => {
+    const type = settings.mode === 'mixed' ? (Math.random() < 0.5 ? 'meaning' : 'word') : settings.mode;
+    return buildQuestion(entry, type, pool);
+  });
+  state.idx = 0; state.correct = 0; state.wrong = 0; state.wrongList = []; state.answered = false;
+  $('setupPanel').style.display = 'none';
+  $('resultPanel').style.display = 'none';
+  $('quizPanel').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderQuestion();
+}
+$('btnStart').addEventListener('click', () => startQuiz(false));
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  state.answered = false;
+  $('sProgress').textContent = `${state.idx + 1}/${state.questions.length}`;
+  $('sCorrect').textContent = state.correct;
+  $('sWrong').textContent = state.wrong;
+  $('progFill').style.width = `${state.idx / state.questions.length * 100}%`;
+
+  const qTag = $('qTag'), qContent = $('qContent');
+  if (q.type === 'meaning') {
+    qTag.textContent = '看詞・選出正確意思';
+    qTag.className = 'q-tag';
+    qContent.innerHTML = `
+      ${q.pos ? `<div class="pos-tag ${q.pos}">${q.pos}</div>` : ''}
+      <div class="q-word">${q.words.join(' / ')}</div>
+    `;
+  } else {
+    qTag.textContent = '看意思・選出對應詞語';
+    qTag.className = 'q-tag t2';
+    qContent.innerHTML = `
+      ${q.pos ? `<div class="pos-tag ${q.pos}">${q.pos}</div>` : ''}
+      <div class="q-meaning">${q.meaning}</div>
+    `;
+  }
+
+  const optBox = $('optBox');
+  optBox.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const opts = q.type === 'meaning' ? q.options : q.options.map(o => o.word);
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.value = opt;
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span class="text">${opt}</span><span class="icon">✓</span>`;
+    btn.addEventListener('click', () => handleAnswer(btn, opt, q));
+    optBox.appendChild(btn);
+  });
+  $('btnNext').disabled = true;
+  $('btnSkip').disabled = false;
+}
+
+function handleAnswer(btn, picked, q) {
+  if (state.answered) return;
+  state.answered = true;
+  const isCorrect = picked === q.answer;
+  document.querySelectorAll('#optBox .opt-btn').forEach(b => {
+    b.disabled = true;
+    const v = b.dataset.value;
+    if (v === q.answer) { b.classList.add('correct'); b.querySelector('.icon').textContent = '✓'; }
+    else if (b === btn && !isCorrect) { b.classList.add('wrong'); b.querySelector('.icon').textContent = '✗'; }
+    else b.classList.add('dimmed');
+  });
+  if (isCorrect) state.correct++;
+  else { state.wrong++; state.wrongList.push({ words: q.words, pos: q.pos, meaning: q.meaning }); }
+  $('sCorrect').textContent = state.correct;
+  $('sWrong').textContent = state.wrong;
+  $('btnNext').disabled = false;
+  $('btnSkip').disabled = true;
+}
+
+$('btnSkip').addEventListener('click', () => {
+  if (state.answered) return;
+  const q = state.questions[state.idx];
+  state.wrong++;
+  state.wrongList.push({ words: q.words, pos: q.pos, meaning: q.meaning });
+  state.answered = true;
+  document.querySelectorAll('#optBox .opt-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.value === q.answer) b.classList.add('correct');
+    else b.classList.add('dimmed');
+  });
+  $('sWrong').textContent = state.wrong;
+  $('btnNext').disabled = false;
+  $('btnSkip').disabled = true;
+});
+
+$('btnNext').addEventListener('click', () => {
+  if (state.idx < state.questions.length - 1) { state.idx++; renderQuestion(); }
+  else showResult();
+});
+$('btnQuit').addEventListener('click', () => {
+  if (confirm('確定要結束測驗?')) showResult();
+});
+
+function showResult() {
+  const total = state.questions.length;
+  const rate = total === 0 ? 0 : Math.round(state.correct / total * 100);
+  $('quizPanel').style.display = 'none';
+  $('resultPanel').style.display = 'block';
+  let title = '📊 測驗結果';
+  if (rate === 100) title = '🏆 滿分!太厲害了';
+  else if (rate >= 90) title = '🌟 非常好';
+  else if (rate >= 75) title = '👍 表現不錯';
+  else if (rate >= 60) title = '💪 還可以再努力';
+  else title = '📖 多複習就會進步';
+  $('rTitle').textContent = title;
+  $('rScore').textContent = rate;
+  $('rCircle').style.setProperty('--p', rate);
+  $('rSummary').innerHTML = `共 ${total} 題,答對 <b style="color:var(--success);">${state.correct}</b> 題,答錯 <b style="color:var(--danger);">${state.wrong}</b> 題`;
+
+  const wrongList = $('wrongList');
+  wrongList.innerHTML = '';
+  if (state.wrongList.length === 0) {
+    $('wrongSection').style.display = 'none';
+    $('btnRetryWrong').style.display = 'none';
+  } else {
+    $('wrongSection').style.display = 'block';
+    $('btnRetryWrong').style.display = 'inline-flex';
+    state.wrongList.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `
+        <div class="w">${item.pos ? `<span class="pos-tag ${item.pos}" style="font-size:11px; padding:1px 8px; margin-right:6px;">${item.pos}</span>` : ''}${item.words.join(' / ')}</div>
+        <div class="m">${item.meaning}</div>
+      `;
+      wrongList.appendChild(div);
+    });
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+$('btnRestart').addEventListener('click', () => startQuiz(false));
+$('btnRetryWrong').addEventListener('click', () => {
+  if (state.wrongList.length === 0) { toast('沒有錯題'); return; }
+  startQuiz(true);
+  toast(`開始重考 ${state.wrongList.length} 題錯題`);
+});
+$('btnBackHome').addEventListener('click', () => {
+  $('resultPanel').style.display = 'none';
+  $('setupPanel').style.display = 'block';
+});
+
+function parseCustomLine(line) {
+  const parts = line.split('|').map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  if (parts.length === 2) return { words: [parts[0]], pos: '', meaning: parts[1] };
+  return { words: [parts[0]], pos: parts[1], meaning: parts.slice(2).join('|') };
+}
+
+$('btnOpenCustom').addEventListener('click', () => {
+  const lines = customItems.map(item => item.pos
+    ? `${item.words[0]}|${item.pos}|${item.meaning}`
+    : `${item.words[0]}|${item.meaning}`);
+  $('customInput').value = lines.join('\n');
+  $('customError').style.display = 'none';
+  $('customModal').style.display = 'flex';
+  setTimeout(() => $('customInput').focus(), 50);
+});
+$('btnCancelCustom').addEventListener('click', () => $('customModal').style.display = 'none');
+$('customModal').addEventListener('click', e => { if (e.target.id === 'customModal') $('customModal').style.display = 'none'; });
+
+$('btnApplyCustom').addEventListener('click', () => {
+  const raw = $('customInput').value.split(/[\n\r]+/).map(s => s.trim()).filter(Boolean);
+  if (raw.length === 0) { $('customError').textContent = '請至少輸入一行。'; $('customError').style.display = 'block'; return; }
+  const items = raw.map(parseCustomLine).filter(Boolean);
+  if (items.length < 4) {
+    $('customError').textContent = '至少需要 4 題(格式錯誤的會被忽略)。';
+    $('customError').style.display = 'block';
+    return;
+  }
+  BANKS.custom = { name: `✏️ 自訂題庫(${items.length} 題)`, items };
+  saveSetting('q_customItems', items);
+  settings.bank = 'custom';
+  saveSetting('q_bank', 'custom');
+  rebuildBankSelect();
+  $('customModal').style.display = 'none';
+  toast(`已套用自訂題庫(${items.length} 題)`);
+});
+
+function encodeQuiz(title, raw) {
+  const payload = JSON.stringify({ t: title, r: raw });
+  return btoa(unescape(encodeURIComponent(payload))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeQuiz(b64) {
+  try {
+    const s = b64.replace(/-/g,'+').replace(/_/g,'/');
+    return JSON.parse(decodeURIComponent(escape(atob(s))));
+  } catch(e) { return null; }
+}
+
+function checkTeacherShare() {
+  const q = new URLSearchParams(location.search).get('q');
+  if (!q) return false;
+  const data = decodeQuiz(q);
+  if (!data || !data.r) return false;
+  const lines = data.r.split(/[\n\r]+/).map(s => s.trim()).filter(Boolean);
+  const items = lines.map(parseCustomLine).filter(Boolean);
+  if (items.length < 4) { toast('老師的題目太少,至少 4 題'); return false; }
+  BANKS.teacher = { name: `👩‍🏫 ${data.t || '老師出的題目'}(${items.length} 題)`, items };
+  settings.bank = 'teacher';
+  rebuildBankSelect();
+  toast(`📥 已載入老師的題目:${data.t || '字義測驗'}`);
+  return true;
+}
+
+$('btnTeacher').addEventListener('click', () => {
+  $('teacherTitle').value = '';
+  $('teacherInput').value = '';
+  $('teacherError').style.display = 'none';
+  $('teacherResult').style.display = 'none';
+  $('teacherModal').style.display = 'flex';
+});
+$('btnCloseTeacher').addEventListener('click', () => $('teacherModal').style.display = 'none');
+$('teacherModal').addEventListener('click', e => { if (e.target.id === 'teacherModal') $('teacherModal').style.display = 'none'; });
+
+$('btnGenerateLink').addEventListener('click', () => {
+  const title = $('teacherTitle').value.trim();
+  const raw = $('teacherInput').value;
+  const lines = raw.split(/[\n\r]+/).map(s => s.trim()).filter(Boolean);
+  const items = lines.map(parseCustomLine).filter(Boolean);
+  if (items.length < 4) {
+    $('teacherError').textContent = '至少需要 4 題(格式:詞語|意思)。';
+    $('teacherError').style.display = 'block';
+    return;
+  }
+  $('teacherError').style.display = 'none';
+  const code = encodeQuiz(title, raw);
+  const baseUrl = location.href.split('#')[0].split('?')[0];
+  const url = `${baseUrl}?q=${code}`;
+  $('teacherUrl').value = url;
+  $('teacherResult').style.display = 'block';
+  toast('連結已產生!');
+});
+$('btnCopyTeacherUrl').addEventListener('click', () => {
+  $('teacherUrl').select();
+  try { navigator.clipboard.writeText($('teacherUrl').value); toast('連結已複製!'); }
+  catch (e) { document.execCommand('copy'); toast('連結已複製!'); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+});
+
+checkTeacherShare();
+rebuildBankSelect();
+</script>
+</body>
+</html>
