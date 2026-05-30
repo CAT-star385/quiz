@@ -346,6 +346,29 @@
   .footer-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
   .footer-link a:hover { text-decoration: underline; }
 
+  .exam-timer-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding: 8px 12px;
+    background: linear-gradient(135deg, rgba(217, 68, 54, 0.08), rgba(244, 162, 97, 0.08));
+    border-radius: 12px; border: 1px solid var(--accent);
+  }
+  .exam-timer-chip {
+    flex: 1; font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 900; font-size: 18px; color: var(--accent);
+    font-variant-numeric: tabular-nums; letter-spacing: 2px;
+  }
+  .exam-timer-chip.warn { animation: pulse 0.5s ease infinite alternate; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+  .exam-add-btn {
+    background: var(--success); color: white; border: none;
+    border-radius: 99px; padding: 6px 14px;
+    font-family: inherit; font-weight: 900; font-size: 13px;
+    cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+  }
+  .exam-add-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+  .exam-add-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+
   @media (max-width: 500px) {
     .app { padding: 12px 10px 30px; }
     .panel { padding: 22px 14px 18px; }
@@ -414,6 +437,18 @@
       </div>
     </div>
 
+    <div class="setup-section">
+      <div class="setup-section-title">⑤ 考試計時(選用)</div>
+      <div class="seg-control" id="segExamTime">
+        <button data-v="0" class="active">不計時</button>
+        <button data-v="30">30 秒</button>
+        <button data-v="60">1 分</button>
+        <button data-v="180">3 分</button>
+        <button data-v="300">5 分</button>
+      </div>
+      <div style="font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5;">時間到自動交卷,測驗中可隨時按「+30 秒」延長</div>
+    </div>
+
     <button class="btn btn-primary btn-big" id="btnStart">開 始 測 驗</button>
   </div>
 
@@ -422,6 +457,10 @@
       <div class="stat-chip"><div class="label">進度</div><div class="value" id="sProgress">0/0</div></div>
       <div class="stat-chip correct"><div class="label">答對</div><div class="value" id="sCorrect">0</div></div>
       <div class="stat-chip wrong"><div class="label">答錯</div><div class="value" id="sWrong">0</div></div>
+    </div>
+    <div class="exam-timer-row" id="examTimerRow" style="display:none;">
+      <div class="exam-timer-chip" id="examTimerChip">⏱ 00:00</div>
+      <button class="exam-add-btn" id="btnExamAdd">+30 秒</button>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
     <span class="q-tag" id="qTag">題型</span>
@@ -638,6 +677,7 @@ let settings = {
   fontSize: loadSetting('q_fontSize', 'medium'),
   theme: loadSetting('q_theme', 'light'),
   bank: loadSetting('q_bank', 'lesson1'),
+  examTime: loadSetting('q_examTime', 0),
 };
 document.documentElement.setAttribute('data-theme', settings.theme);
 document.documentElement.setAttribute('data-fs', settings.fontSize);
@@ -680,6 +720,7 @@ function setupSegControl(elId, key, applyFn) {
 }
 setupSegControl('segCount', 'count');
 setupSegControl('segFontSize', 'fontSize', v => document.documentElement.setAttribute('data-fs', v));
+setupSegControl('segExamTime', 'examTime');
 
 document.querySelectorAll('#modeGrid .mode-btn').forEach(btn => {
   btn.classList.toggle('active', btn.dataset.mode === settings.mode);
@@ -701,6 +742,49 @@ $('btnTheme').addEventListener('click', () => {
 });
 
 let state = { questions: [], idx: 0, correct: 0, wrong: 0, wrongList: [], answered: false };
+let examTimerInterval = null;
+let examTimeLeft = 0;
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function startExamTimer() {
+  clearInterval(examTimerInterval);
+  if (!settings.examTime || settings.examTime === 0) {
+    $('examTimerRow').style.display = 'none';
+    return;
+  }
+  examTimeLeft = settings.examTime;
+  $('examTimerRow').style.display = 'flex';
+  $('examTimerChip').textContent = `⏱ ${formatTime(examTimeLeft)}`;
+  $('examTimerChip').classList.remove('warn');
+  examTimerInterval = setInterval(() => {
+    examTimeLeft--;
+    if (examTimeLeft <= 0) {
+      clearInterval(examTimerInterval);
+      toast('⏰ 時間到!自動交卷');
+      setTimeout(() => showResult(), 600);
+      return;
+    }
+    $('examTimerChip').textContent = `⏱ ${formatTime(examTimeLeft)}`;
+    if (examTimeLeft <= 10) $('examTimerChip').classList.add('warn');
+  }, 1000);
+}
+
+function stopExamTimer() {
+  clearInterval(examTimerInterval);
+}
+
+$('btnExamAdd').addEventListener('click', () => {
+  if (!settings.examTime || examTimeLeft <= 0) return;
+  examTimeLeft += 30;
+  $('examTimerChip').textContent = `⏱ ${formatTime(examTimeLeft)}`;
+  if (examTimeLeft > 10) $('examTimerChip').classList.remove('warn');
+  toast('+30 秒');
+});
 
 /* =========================================================
    干擾選項池
@@ -945,6 +1029,7 @@ function startQuiz(retryFromWrong) {
   $('quizPanel').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   renderQuestion();
+  startExamTimer();
 }
 $('btnStart').addEventListener('click', () => startQuiz(false));
 
@@ -1033,6 +1118,7 @@ $('btnQuit').addEventListener('click', () => {
 });
 
 function showResult() {
+  stopExamTimer();
   const total = state.questions.length;
   const rate = total === 0 ? 0 : Math.round(state.correct / total * 100);
   $('quizPanel').style.display = 'none';
