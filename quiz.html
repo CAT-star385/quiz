@@ -303,11 +303,65 @@
   .footer-link { text-align: center; margin-top: 18px; color: var(--muted); font-size: 13px; }
   .footer-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
   .footer-link a:hover { text-decoration: underline; }
+
+  /* 考試模式開關 */
+  .exam-toggle {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: var(--paper2);
+    border-radius: 12px; border: 1px solid var(--line);
+  }
+  .exam-label { font-size: 13px; color: var(--ink); line-height: 1.5; flex: 1; }
+  .switch {
+    position: relative; display: inline-block;
+    width: 44px; height: 24px; flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--line); transition: 0.3s; border-radius: 24px;
+  }
+  .slider::before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: white;
+    transition: 0.3s; border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .switch input:checked + .slider { background-color: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(20px); }
+
+  /* 考試中的計時器 */
+  .exam-timer {
+    background: var(--accent); color: white;
+    border-radius: 99px; padding: 6px 14px;
+    font-weight: 900; font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 3px 12px rgba(217, 68, 54, 0.3);
+  }
+  .exam-timer.warn { animation: pulse 0.5s ease infinite alternate; }
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); background: #b8392b; }
+  }
+  .exam-badge {
+    display: inline-block;
+    background: rgba(217, 68, 54, 0.15);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 99px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-left: 6px;
+  }
+
   @media (max-width: 500px) {
     .app { padding: 12px 10px 30px; }
     .panel { padding: 22px 14px 18px; }
     .opt-btn { font-size: 14px; padding: 12px 14px; }
   }
+}
 </style>
 </head>
 <body>
@@ -410,7 +464,7 @@
   </div>
 
   <div class="footer-link">
-    想練聽寫? <a href="./">→ 注音聽寫練習</a>
+    想練聽寫? <a href="https://cat-star385.github.io/dictation/">→ 注音聽寫練習</a>
   </div>
 </div>
 
@@ -659,22 +713,138 @@ $('btnTheme').addEventListener('click', () => {
 
 let state = { questions: [], idx: 0, correct: 0, wrong: 0, wrongList: [], answered: false };
 
+/* =========================================================
+   干擾選項池(所有題庫合併 + 額外乾擾詞池)
+   ========================================================= */
+// 額外的常見干擾詞池(用於「看意思選字」的干擾項)
+const EXTRA_DISTRACTOR_WORDS = {
+  2: ["勤奮","奮鬥","努力","勇氣","勇猛","謙卑","驕縱","誠懇","真誠","虛偽","慚愧","羨慕","嫉妒","欣賞","讚美","批評","責備","原諒","寬恕","關心","關懷","照顧","保護","幫助","協助","支援","鼓勵","安慰","陪伴","期待","期望","盼望","渴望","失望","絕望","希望","快樂","愉快","幸福","痛苦","悲傷","難過","煩惱","煩躁","急躁","冷靜","沈著","鎮定","驚慌","害怕","恐懼","恐慌","驚訝","驚奇","好奇","新奇","奇特","奇妙","神奇","奇怪","平凡","普通","特別","獨特","出色","優秀","卓越","平庸","笨拙","敏捷","靈巧","靈活","堅強","堅定","堅持","堅韌","軟弱","脆弱","強壯","強健","健康","健全","完整","完美","殘缺","缺陷","缺點","優點","好處","壞處","利益","損失","得到","失去","獲得","贏得","成功","成就","勝利","失敗","挫折","困境","困難","容易","簡單","複雜","繁瑣","精緻","粗糙","細膩","柔軟","堅硬","脆弱","純潔","純真","天真","幼稚","成熟","老練","熟練"],
+  3: ["善良心","好心腸","壞心眼","小心眼","大方人","小氣鬼","老實人","聰明人","笨蛋鬼","糊塗蟲","守財奴","花花公","討厭鬼","可愛人","運氣好","運氣差","好機會","壞機會","好辦法","新方法","老方法","老一套","新花樣","新點子","老前輩","新人類","新成員","老成員","老朋友","新朋友","好朋友","壞朋友","老師傅","新師傅"],
+  4: ["心平氣和","平心靜氣","心驚膽戰","心驚肉跳","坐立不安","忐忑不安","驚慌失措","手足無措","茫然若失","目瞪口呆","瞠目結舌","啞口無言","面紅耳赤","面如土色","容光煥發","神采奕奕","精神抖擻","神清氣爽","氣喘吁吁","氣定神閒","信心十足","信心滿滿","充滿信心","毫無信心","胸有成竹","心中有數","心知肚明","心領神會","心心相印","志同道合","異曲同工","殊途同歸","南轅北轍","背道而馳","針鋒相對","水火不容","形影不離","如影隨形","形單影隻","孤苦伶仃","孤掌難鳴","勢單力薄","勢均力敵","旗鼓相當","不相上下","半斤八兩","平分秋色","你死我活","兩敗俱傷","同歸於盡","共存共榮","榮辱與共","風雨同舟","同舟共濟","同甘共苦","患難與共"],
+};
+
+function getAllItems() {
+  // 合併所有題庫的 items,當作干擾池
+  const all = [];
+  for (const k of Object.keys(BANKS)) {
+    if (BANKS[k].items) all.push(...BANKS[k].items);
+  }
+  return all;
+}
+
+/* =========================================================
+   挑「最容易被誤選」的干擾項
+   ========================================================= */
+function scoreSimilarity(target, candidate) {
+  // 算兩字串相似度(共用字數比例)
+  if (!target || !candidate) return 0;
+  let common = 0;
+  const tSet = new Set(target);
+  for (const ch of candidate) if (tSet.has(ch)) common++;
+  // 共用字數 / 較長者長度
+  return common / Math.max(target.length, candidate.length);
+}
+
+function pickHardDistractors_Meaning(answer, allEntries, excludeMeanings, n) {
+  // 從所有題庫的解釋中,挑 n 個最容易被誤選的
+  const candidates = allEntries
+    .filter(e => !excludeMeanings.includes(e.meaning))
+    .map(e => ({
+      meaning: e.meaning,
+      score: scoreSimilarity(answer, e.meaning) + (Math.abs(e.meaning.length - answer.length) <= 3 ? 0.3 : 0),
+    }));
+  // 取相似度前 50% 中隨機挑(避免每次都同一組)
+  candidates.sort((a, b) => b.score - a.score);
+  const topHalf = candidates.slice(0, Math.max(n * 4, Math.floor(candidates.length * 0.5)));
+  const picked = [];
+  const usedMeanings = new Set();
+  for (const c of shuffle(topHalf)) {
+    if (usedMeanings.has(c.meaning)) continue;
+    picked.push(c.meaning);
+    usedMeanings.add(c.meaning);
+    if (picked.length >= n) break;
+  }
+  // 不夠就從剩下的補
+  if (picked.length < n) {
+    for (const c of shuffle(candidates)) {
+      if (usedMeanings.has(c.meaning)) continue;
+      picked.push(c.meaning);
+      usedMeanings.add(c.meaning);
+      if (picked.length >= n) break;
+    }
+  }
+  return picked;
+}
+
+function pickHardDistractors_Word(targetWord, targetPos, allEntries, excludeWords, n) {
+  const targetLen = targetWord.length;
+  const targetChars = new Set(targetWord);
+
+  // 候選 1:題庫內其他詞(含詞性、字長判斷)
+  const fromBank = allEntries
+    .flatMap(e => e.words.map(w => ({ word: w, pos: e.pos, source: 'bank' })))
+    .filter(c => !excludeWords.includes(c.word));
+
+  // 候選 2:外部干擾詞池(依字長)
+  const extras = (EXTRA_DISTRACTOR_WORDS[targetLen] || []).map(w => ({ word: w, pos: '', source: 'extra' }));
+
+  // 合併並計分
+  const allCandidates = [...fromBank, ...extras]
+    .filter(c => c.word !== targetWord)
+    .map(c => {
+      let score = 0;
+      // 字長相同 +1
+      if (c.word.length === targetLen) score += 1;
+      // 字長相差 1 +0.5
+      else if (Math.abs(c.word.length - targetLen) === 1) score += 0.5;
+      // 含有相同字
+      let shared = 0;
+      for (const ch of c.word) if (targetChars.has(ch)) shared++;
+      score += shared * 0.6;
+      // 同詞性 +0.4
+      if (c.pos && targetPos && c.pos === targetPos) score += 0.4;
+      return { word: c.word, score, source: c.source };
+    });
+
+  // 去重(同詞只保留分數最高)
+  const wordMap = new Map();
+  for (const c of allCandidates) {
+    if (!wordMap.has(c.word) || wordMap.get(c.word).score < c.score) {
+      wordMap.set(c.word, c);
+    }
+  }
+  const uniq = Array.from(wordMap.values());
+
+  // 排序:分數高的優先
+  uniq.sort((a, b) => b.score - a.score);
+  // 在前 30% 中隨機挑(避免固定一組)
+  const topPool = uniq.slice(0, Math.max(n * 4, Math.floor(uniq.length * 0.3)));
+  const picks = shuffle(topPool).slice(0, n);
+  // 不夠就從剩下補
+  if (picks.length < n) {
+    const rest = uniq.filter(u => !picks.includes(u));
+    picks.push(...shuffle(rest).slice(0, n - picks.length));
+  }
+  return picks.map(p => p.word);
+}
+
 function buildQuestion(entry, type, allEntries) {
+  const fullPool = getAllItems(); // 所有題庫合併的大池
   if (type === 'meaning') {
-    const wrongMeanings = pickN(allEntries.filter(e => e !== entry).map(e => e.meaning), [entry.meaning], 3);
+    const wrongMeanings = pickHardDistractors_Meaning(
+      entry.meaning,
+      fullPool,
+      [entry.meaning],
+      3
+    );
     const options = shuffle([entry.meaning, ...wrongMeanings]);
     return { type: 'meaning', words: entry.words, pos: entry.pos, meaning: entry.meaning, options, answer: entry.meaning };
   } else {
     const answer = entry.words[0];
-    const others = allEntries.filter(e => e !== entry);
-    const samePos = shuffle(others.filter(e => e.pos === entry.pos));
-    const diffPos = shuffle(others.filter(e => e.pos !== entry.pos));
-    const wrongEntries = [...samePos, ...diffPos].slice(0, 3);
-    const options = shuffle([
-      { word: answer, correct: true },
-      ...wrongEntries.map(e => ({ word: e.words[0], correct: false }))
-    ]);
-    return { type: 'word', meaning: entry.meaning, pos: entry.pos, words: entry.words, options, answer };
+    const excludeWords = entry.words.slice(); // 同義詞都排除
+    const wrongWords = pickHardDistractors_Word(answer, entry.pos, fullPool, excludeWords, 3);
+    const options = shuffle([answer, ...wrongWords]);
+    return { type: 'word', meaning: entry.meaning, pos: entry.pos, words: entry.words, options: options.map(w => ({ word: w })), answer };
   }
 }
 
