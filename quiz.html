@@ -3,9 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>字義測驗・線上免費中文字義練習</title>
-<meta name="description" content="免費中文字義測驗工具,看詞選意思、看意思選字,內建多套題庫,支援老師出題、自訂題庫。">
+
+<!-- Primary SEO -->
+<title>字義測驗｜免費線上中文字義練習(成語/形容詞 4 選 1)</title>
+<meta name="description" content="免費中文字義測驗工具!三種題型:看詞選意思、看意思選字、綜合測驗。內建成語、形容詞、生字等多套題庫,支援自訂題庫、老師班級出題、錯題重考、深色模式。適合國小、國中字義練習與小考準備,完全免費、不用註冊。">
+<meta name="keywords" content="字義,字義測驗,詞語意思,中文測驗,成語測驗,成語意思,詞語解釋,4選1,選擇題,生字練習,國小字義,國中字義,線上測驗,免費測驗,字義練習,看詞選意思,看意思選字,班級小考,老師出題,zh-TW,Chinese vocabulary quiz">
+<meta name="author" content="CAT-star385">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://cat-star385.github.io/quiz/quiz.html">
 <meta name="theme-color" content="#7a5195">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="字義測驗｜免費線上中文字義練習">
+<meta property="og:description" content="3 種題型、多套題庫、老師出題、錯題重考,國小國中字義練習神器,完全免費。">
+<meta property="og:url" content="https://cat-star385.github.io/quiz/quiz.html">
+<meta property="og:site_name" content="字義測驗">
+<meta property="og:locale" content="zh_TW">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字義測驗｜免費線上中文字義練習">
+<meta name="twitter:description" content="三種題型,內建成語/形容詞題庫,支援自訂與老師出題。">
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "字義測驗",
+  "description": "免費中文字義線上測驗工具,看詞選意思、看意思選字、綜合測驗。",
+  "url": "https://cat-star385.github.io/quiz/quiz.html",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+  },
+  "inLanguage": "zh-TW",
+  "audience": {
+    "@type": "EducationalAudience",
+    "educationalRole": "student"
+  }
+}
+</script>
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%237a5195' rx='20'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900'%3E義%3C/text%3E%3C/svg%3E">
 
@@ -304,64 +346,11 @@
   .footer-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
   .footer-link a:hover { text-decoration: underline; }
 
-  /* 考試模式開關 */
-  .exam-toggle {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 14px; background: var(--paper2);
-    border-radius: 12px; border: 1px solid var(--line);
-  }
-  .exam-label { font-size: 13px; color: var(--ink); line-height: 1.5; flex: 1; }
-  .switch {
-    position: relative; display: inline-block;
-    width: 44px; height: 24px; flex-shrink: 0;
-  }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--line); transition: 0.3s; border-radius: 24px;
-  }
-  .slider::before {
-    position: absolute; content: ""; height: 18px; width: 18px;
-    left: 3px; bottom: 3px; background-color: white;
-    transition: 0.3s; border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-  .switch input:checked + .slider { background-color: var(--accent); }
-  .switch input:checked + .slider::before { transform: translateX(20px); }
-
-  /* 考試中的計時器 */
-  .exam-timer {
-    background: var(--accent); color: white;
-    border-radius: 99px; padding: 6px 14px;
-    font-weight: 900; font-size: 15px;
-    font-variant-numeric: tabular-nums;
-    display: inline-flex; align-items: center; gap: 6px;
-    box-shadow: 0 3px 12px rgba(217, 68, 54, 0.3);
-  }
-  .exam-timer.warn { animation: pulse 0.5s ease infinite alternate; }
-  @keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); background: #b8392b; }
-  }
-  .exam-badge {
-    display: inline-block;
-    background: rgba(217, 68, 54, 0.15);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 99px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-left: 6px;
-  }
-
   @media (max-width: 500px) {
     .app { padding: 12px 10px 30px; }
     .panel { padding: 22px 14px 18px; }
     .opt-btn { font-size: 14px; padding: 12px 14px; }
   }
-}
 </style>
 </head>
 <body>
@@ -714,17 +703,93 @@ $('btnTheme').addEventListener('click', () => {
 let state = { questions: [], idx: 0, correct: 0, wrong: 0, wrongList: [], answered: false };
 
 /* =========================================================
-   干擾選項池(所有題庫合併 + 額外乾擾詞池)
+   干擾選項池
    ========================================================= */
-// 額外的常見干擾詞池(用於「看意思選字」的干擾項)
+// 額外的解釋干擾池(用於「看詞選意思」)
+const EXTRA_DISTRACTOR_MEANINGS = [
+  "形容人說話直接、不轉彎抹角",
+  "在事情完成後感到滿意",
+  "對事情有強烈的主見和看法",
+  "心裡覺得不舒服、不愉快",
+  "做事情時非常仔細、小心",
+  "對人事物採取消極、不熱心的態度",
+  "為了達成目的而努力嘗試",
+  "因為失敗而感到失望、沮喪",
+  "對某事情完全沒有興趣",
+  "形容事情進行得非常順利",
+  "在困難的情況下仍然堅持",
+  "對他人的成就感到佩服",
+  "因為某件事而感到驚訝",
+  "形容人非常有耐心、不急躁",
+  "心裡有很多話想說卻說不出口",
+  "做事情時非常快速、有效率",
+  "因為害怕而不敢去做",
+  "對未來充滿希望和期待",
+  "形容人個性開朗、容易親近",
+  "因為長時間努力而感到疲累",
+  "對某件事情非常熟悉",
+  "形容人說話很有道理、令人信服",
+  "心情突然變得很不好",
+  "因為發現新事物而感到興奮",
+  "對自己的能力非常有自信",
+  "形容人做事有條有理、不慌不忙",
+  "在面對困難時感到無助",
+  "因為意外的好事而感到驚喜",
+  "對於不公平的事情感到生氣",
+  "形容人的態度非常認真嚴肅",
+  "在做決定前仔細考慮所有可能",
+  "因為長時間沒有見面而感到想念",
+  "對於陌生的環境感到不適應",
+  "形容人說話聲音很大、很激動",
+  "因為被誤會而感到委屈",
+  "對某人的行為感到不滿意",
+  "形容事物的數量非常多",
+  "因為太累而想要休息",
+  "對於別人的幫助表示感謝",
+  "形容人聰明、反應快",
+  "在公開場合表達自己的意見",
+  "因為被批評而感到難過",
+  "對於規定感到不能接受",
+  "形容人做事不認真、馬虎",
+  "在團體中發揮重要的作用",
+  "因為長期練習而變得熟練",
+  "對某事保持沉默、不發表意見",
+  "形容人非常守時、準時",
+  "因為意外受傷而住院",
+  "對於不熟悉的事物感到好奇",
+  "從遠處眺望時看到的景象",
+  "古代用來計算物品的單位",
+  "經過某種處理後產生的結果",
+  "兩個物體互相接觸的部分",
+  "建築物的外圍或邊界",
+  "供人居住或工作的空間",
+  "可以飲用的液體或飲品",
+  "用來防護或裝飾的物品",
+  "形容環境寬廣、空間大",
+  "形容東西被弄壞、無法使用",
+  "形容人非常忙碌、停不下來",
+  "形容兩件事情完全相反",
+  "形容人神情緊張、害怕",
+  "突然明白原本不清楚的事情",
+  "把事情從頭到尾仔細說明",
+  "把多個人或物聚集在一起",
+  "把某人從危險中救出來",
+  "從某個地方出發前往別處",
+  "把資料整理後製成書",
+  "對別人的話表示同意",
+  "把錢或物品借給別人",
+  "對某個現象進行詳細的研究",
+  "在比賽中得到第一名",
+];
+
+// 額外的干擾詞池(用於「看意思選字」)
 const EXTRA_DISTRACTOR_WORDS = {
-  2: ["勤奮","奮鬥","努力","勇氣","勇猛","謙卑","驕縱","誠懇","真誠","虛偽","慚愧","羨慕","嫉妒","欣賞","讚美","批評","責備","原諒","寬恕","關心","關懷","照顧","保護","幫助","協助","支援","鼓勵","安慰","陪伴","期待","期望","盼望","渴望","失望","絕望","希望","快樂","愉快","幸福","痛苦","悲傷","難過","煩惱","煩躁","急躁","冷靜","沈著","鎮定","驚慌","害怕","恐懼","恐慌","驚訝","驚奇","好奇","新奇","奇特","奇妙","神奇","奇怪","平凡","普通","特別","獨特","出色","優秀","卓越","平庸","笨拙","敏捷","靈巧","靈活","堅強","堅定","堅持","堅韌","軟弱","脆弱","強壯","強健","健康","健全","完整","完美","殘缺","缺陷","缺點","優點","好處","壞處","利益","損失","得到","失去","獲得","贏得","成功","成就","勝利","失敗","挫折","困境","困難","容易","簡單","複雜","繁瑣","精緻","粗糙","細膩","柔軟","堅硬","脆弱","純潔","純真","天真","幼稚","成熟","老練","熟練"],
-  3: ["善良心","好心腸","壞心眼","小心眼","大方人","小氣鬼","老實人","聰明人","笨蛋鬼","糊塗蟲","守財奴","花花公","討厭鬼","可愛人","運氣好","運氣差","好機會","壞機會","好辦法","新方法","老方法","老一套","新花樣","新點子","老前輩","新人類","新成員","老成員","老朋友","新朋友","好朋友","壞朋友","老師傅","新師傅"],
-  4: ["心平氣和","平心靜氣","心驚膽戰","心驚肉跳","坐立不安","忐忑不安","驚慌失措","手足無措","茫然若失","目瞪口呆","瞠目結舌","啞口無言","面紅耳赤","面如土色","容光煥發","神采奕奕","精神抖擻","神清氣爽","氣喘吁吁","氣定神閒","信心十足","信心滿滿","充滿信心","毫無信心","胸有成竹","心中有數","心知肚明","心領神會","心心相印","志同道合","異曲同工","殊途同歸","南轅北轍","背道而馳","針鋒相對","水火不容","形影不離","如影隨形","形單影隻","孤苦伶仃","孤掌難鳴","勢單力薄","勢均力敵","旗鼓相當","不相上下","半斤八兩","平分秋色","你死我活","兩敗俱傷","同歸於盡","共存共榮","榮辱與共","風雨同舟","同舟共濟","同甘共苦","患難與共"],
+  2: ["勤奮","奮鬥","努力","勇氣","勇猛","謙卑","驕縱","誠懇","真誠","虛偽","慚愧","羨慕","嫉妒","欣賞","讚美","批評","責備","原諒","寬恕","關心","關懷","照顧","保護","幫助","協助","支援","鼓勵","安慰","陪伴","期待","期望","盼望","渴望","失望","絕望","希望","快樂","愉快","幸福","痛苦","悲傷","難過","煩惱","煩躁","急躁","冷靜","沈著","鎮定","驚慌","害怕","恐懼","恐慌","驚訝","驚奇","好奇","新奇","奇特","奇妙","神奇","奇怪","平凡","普通","特別","獨特","出色","優秀","卓越","平庸","笨拙","敏捷","靈巧","靈活","堅強","堅定","堅持","堅韌","軟弱","脆弱","強壯","強健","健康","健全","完整","完美","殘缺","缺陷","缺點","優點","好處","壞處","利益","損失","得到","失去","獲得","贏得","成功","成就","勝利","失敗","挫折","困境","困難","容易","簡單","複雜","繁瑣","精緻","粗糙","細膩","柔軟","堅硬","純潔","純真","天真","幼稚","成熟","老練","熟練","臂力","臂彎","手臂","臂章","臂環","腕力","腕骨","腕錶","腕飾","手腕","掌心","掌握","手掌","拳頭","拳擊","指尖","指頭","指甲","拇指","食指","小指","指紋","解放","解開","解讀","解答","解除","解脫","注釋","闡釋","釋疑","釋出","闡明","說明","表明","聲明","證明","解說","評論","討論","議論","言論","論點","論文","論述","推論","結論","論斷","邏輯","道理","法則","規則","規律","原則","條理","秩序","次序","順序","程序","步驟","流程","過程","經過","經歷","遭遇","奇遇","巧遇","相遇","會面","會議","會談","面談","訪談","對話","談話","聊天","閒聊","廢話","實話","真話","假話","謊話","謠言","流言","傳言","傳聞","聽聞","聽說","據說","據聞","得知","知道","了解","明白","清楚","糊塗","迷糊","昏迷","昏倒","暈倒","跌倒","摔倒","倒下","倒地","倒立","倒退","退後","後退","前進","推進","邁進","步行","行走","走路","跑步","奔跑","奔馳","駕駛","駕車","駕馭","操控","控制","管控","掌控","操作","操縱","操弄","玩弄","捉弄","作弄","欺負","欺凌","霸凌","霸道","蠻橫","凶猛","凶狠","凶惡","邪惡","邪門","正派","正義","公義","公平","公正","正直","耿直","直爽","爽快","痛快","暢快","愉悅","歡愉","歡喜","喜悅","喜歡","喜愛"],
+  3: ["善良心","好心腸","壞心眼","小心眼","大方人","小氣鬼","老實人","聰明人","糊塗蟲","守財奴","討厭鬼","可愛人","運氣好","運氣差","好機會","壞機會","好辦法","新方法","老方法","老一套","新花樣","新點子","老前輩","新人類","新成員","老成員","老朋友","新朋友","好朋友","壞朋友","老師傅","新師傅","臂力大","臂彎處","解釋權","解釋者","解答者","巡查員","巡邏隊","偵察員","編輯部","編輯者","邏輯學","邏輯題","管理員","管理者","負責人","當事人","旁觀者","旁聽生","引路人","領路人","局外人","內行人","外行人","主持人","發言人"],
+  4: ["心平氣和","平心靜氣","心驚膽戰","心驚肉跳","坐立不安","忐忑不安","驚慌失措","手足無措","茫然若失","目瞪口呆","瞠目結舌","啞口無言","面紅耳赤","面如土色","容光煥發","神采奕奕","精神抖擻","神清氣爽","氣喘吁吁","氣定神閒","信心十足","信心滿滿","充滿信心","毫無信心","胸有成竹","心中有數","心知肚明","心領神會","心心相印","志同道合","異曲同工","殊途同歸","南轅北轍","背道而馳","針鋒相對","水火不容","形影不離","如影隨形","形單影隻","孤苦伶仃","孤掌難鳴","勢單力薄","勢均力敵","旗鼓相當","不相上下","半斤八兩","平分秋色","你死我活","兩敗俱傷","同歸於盡","共存共榮","榮辱與共","風雨同舟","同舟共濟","同甘共苦","患難與共","囫圇吞棗","走馬看花","蜻蜓點水","淺嘗輒止","半途而廢","虎頭蛇尾","有頭無尾","畫蛇添足","畫餅充飢","望梅止渴","守株待兔","刻舟求劍","掩耳盜鈴","自欺欺人","班門弄斧","東施效顰","邯鄲學步","紙上談兵","坐井觀天","老馬識途","識途老馬","按部就班","循序漸進","步步為營","穩紮穩打","一步登天","平步青雲","青出於藍","出神入化","爐火純青","登峰造極","空前絕後","史無前例","前無古人","後無來者","一鳴驚人","一飛沖天","脫穎而出","嶄露頭角","小試身手"],
 };
 
 function getAllItems() {
-  // 合併所有題庫的 items,當作干擾池
   const all = [];
   for (const k of Object.keys(BANKS)) {
     if (BANKS[k].items) all.push(...BANKS[k].items);
@@ -735,37 +800,33 @@ function getAllItems() {
 /* =========================================================
    挑「最容易被誤選」的干擾項
    ========================================================= */
-function scoreSimilarity(target, candidate) {
-  // 算兩字串相似度(共用字數比例)
-  if (!target || !candidate) return 0;
-  let common = 0;
-  const tSet = new Set(target);
-  for (const ch of candidate) if (tSet.has(ch)) common++;
-  // 共用字數 / 較長者長度
-  return common / Math.max(target.length, candidate.length);
+function countSharedChars(a, b) {
+  const setA = new Set(a);
+  let n = 0;
+  for (const ch of b) if (setA.has(ch)) n++;
+  return n;
 }
 
 function pickHardDistractors_Meaning(targetMeaning, allEntries, excludeMeanings, n) {
-  // 用「正確解釋」去比對其他解釋,找意思相近的當干擾
+  // 嚴格篩選:必須至少 1 個共用字才能當干擾
   const targetLen = targetMeaning.length;
+  const targetChars = new Set(targetMeaning);
   const candidates = allEntries
     .filter(e => !excludeMeanings.includes(e.meaning))
     .map(e => {
-      let score = 0;
-      // 共用字數
-      const tChars = new Set(targetMeaning);
-      let shared = 0;
-      for (const ch of e.meaning) if (tChars.has(ch)) shared++;
-      score += shared * 0.5;
-      // 字數差距越小越好
+      const shared = countSharedChars(targetMeaning, e.meaning);
+      let score = shared * 0.8;
       const lenDiff = Math.abs(e.meaning.length - targetLen);
-      if (lenDiff <= 2) score += 1;
-      else if (lenDiff <= 5) score += 0.5;
-      return { meaning: e.meaning, score };
-    });
+      if (lenDiff <= 2) score += 1.5;
+      else if (lenDiff <= 5) score += 0.8;
+      else if (lenDiff > 10) score -= 1; // 長度差太多扣分
+      return { meaning: e.meaning, score, shared };
+    })
+    .filter(c => c.shared >= 1); // 嚴格:至少要有 1 個共用字
+
   candidates.sort((a, b) => b.score - a.score);
-  // 在前 40% 中隨機挑(分數高優先,但有隨機性避免每次同一組)
-  const topPool = candidates.slice(0, Math.max(n * 3, Math.floor(candidates.length * 0.4)));
+  // 在前 30% 中隨機挑(且都是有共用字的)
+  const topPool = candidates.slice(0, Math.max(n * 3, Math.floor(candidates.length * 0.3)));
   const picked = [];
   const used = new Set();
   for (const c of shuffle(topPool)) {
@@ -774,9 +835,10 @@ function pickHardDistractors_Meaning(targetMeaning, allEntries, excludeMeanings,
     used.add(c.meaning);
     if (picked.length >= n) break;
   }
+  // 如果嚴格篩選後不夠,放寬條件:從所有候選中補
   if (picked.length < n) {
-    for (const c of shuffle(candidates)) {
-      if (used.has(c.meaning)) continue;
+    const allCands = allEntries.filter(e => !excludeMeanings.includes(e.meaning) && !used.has(e.meaning));
+    for (const c of shuffle(allCands)) {
       picked.push(c.meaning);
       used.add(c.meaning);
       if (picked.length >= n) break;
@@ -789,56 +851,64 @@ function pickHardDistractors_Word(targetWord, targetPos, allEntries, excludeWord
   const targetLen = targetWord.length;
   const targetChars = new Set(targetWord);
 
-  // 候選 1:題庫內其他詞(含詞性、字長判斷)
+  // 候選 1:題庫內其他詞
   const fromBank = allEntries
     .flatMap(e => e.words.map(w => ({ word: w, pos: e.pos, source: 'bank' })))
     .filter(c => !excludeWords.includes(c.word));
 
-  // 候選 2:外部干擾詞池(依字長)
+  // 候選 2:外部干擾詞池(只挑同字數)
   const extras = (EXTRA_DISTRACTOR_WORDS[targetLen] || []).map(w => ({ word: w, pos: '', source: 'extra' }));
 
-  // 合併並計分
+  // 合併並嚴格計分:必須要有共用字或字數相同才優先
   const allCandidates = [...fromBank, ...extras]
     .filter(c => c.word !== targetWord)
     .map(c => {
       let score = 0;
-      // 字長相同 +1
-      if (c.word.length === targetLen) score += 1;
-      // 字長相差 1 +0.5
+      const lenMatch = c.word.length === targetLen;
+      if (lenMatch) score += 2;
       else if (Math.abs(c.word.length - targetLen) === 1) score += 0.5;
-      // 含有相同字
+      else return null; // 字數差超過 1 直接淘汰
+
       let shared = 0;
       for (const ch of c.word) if (targetChars.has(ch)) shared++;
-      score += shared * 0.6;
-      // 同詞性 +0.4
+      score += shared * 1.2; // 共用字加分更高
       if (c.pos && targetPos && c.pos === targetPos) score += 0.4;
-      return { word: c.word, score, source: c.source };
-    });
+      return { word: c.word, score, shared, source: c.source };
+    })
+    .filter(c => c !== null);
 
-  // 去重(同詞只保留分數最高)
-  const wordMap = new Map();
-  for (const c of allCandidates) {
-    if (!wordMap.has(c.word) || wordMap.get(c.word).score < c.score) {
-      wordMap.set(c.word, c);
-    }
-  }
-  const uniq = Array.from(wordMap.values());
+  // 嚴格:優先挑「字數相同 且 至少 1 個共用字」的
+  const strict = allCandidates.filter(c => c.shared >= 1);
 
-  // 排序:分數高的優先
-  uniq.sort((a, b) => b.score - a.score);
-  // 在前 30% 中隨機挑(避免固定一組)
-  const topPool = uniq.slice(0, Math.max(n * 4, Math.floor(uniq.length * 0.3)));
-  const picks = shuffle(topPool).slice(0, n);
-  // 不夠就從剩下補
+  // 去重
+  const dedup = arr => {
+    const m = new Map();
+    for (const c of arr) if (!m.has(c.word) || m.get(c.word).score < c.score) m.set(c.word, c);
+    return Array.from(m.values()).sort((a, b) => b.score - a.score);
+  };
+
+  let pool = dedup(strict);
+  // 前 50% 隨機挑(分數高優先,但有隨機性)
+  let topPool = pool.slice(0, Math.max(n * 3, Math.floor(pool.length * 0.5)));
+  let picks = shuffle(topPool).slice(0, n);
+
+  // 不夠就放寬條件
   if (picks.length < n) {
-    const rest = uniq.filter(u => !picks.includes(u));
-    picks.push(...shuffle(rest).slice(0, n - picks.length));
+    const used = new Set(picks.map(p => p.word));
+    const fallback = dedup(allCandidates).filter(c => !used.has(c.word));
+    picks.push(...shuffle(fallback).slice(0, n - picks.length));
+  }
+  // 還不夠就從題庫亂抓
+  if (picks.length < n) {
+    const used = new Set(picks.map(p => p.word));
+    const remaining = fromBank.filter(c => !excludeWords.includes(c.word) && !used.has(c.word));
+    picks.push(...shuffle(remaining).slice(0, n - picks.length));
   }
   return picks.map(p => p.word);
 }
 
 function buildQuestion(entry, type, allEntries) {
-  const fullPool = getAllItems(); // 所有題庫合併的大池
+  const fullPool = getAllItems();
   if (type === 'meaning') {
     const wrongMeanings = pickHardDistractors_Meaning(
       entry.meaning,
@@ -850,7 +920,7 @@ function buildQuestion(entry, type, allEntries) {
     return { type: 'meaning', words: entry.words, pos: entry.pos, meaning: entry.meaning, options, answer: entry.meaning };
   } else {
     const answer = entry.words[0];
-    const excludeWords = entry.words.slice(); // 同義詞都排除
+    const excludeWords = entry.words.slice();
     const wrongWords = pickHardDistractors_Word(answer, entry.pos, fullPool, excludeWords, 3);
     const options = shuffle([answer, ...wrongWords]);
     return { type: 'word', meaning: entry.meaning, pos: entry.pos, words: entry.words, options: options.map(w => ({ word: w })), answer };
