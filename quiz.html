@@ -745,31 +745,40 @@ function scoreSimilarity(target, candidate) {
   return common / Math.max(target.length, candidate.length);
 }
 
-function pickHardDistractors_Meaning(answer, allEntries, excludeMeanings, n) {
-  // 從所有題庫的解釋中,挑 n 個最容易被誤選的
+function pickHardDistractors_Meaning(targetMeaning, allEntries, excludeMeanings, n) {
+  // 用「正確解釋」去比對其他解釋,找意思相近的當干擾
+  const targetLen = targetMeaning.length;
   const candidates = allEntries
     .filter(e => !excludeMeanings.includes(e.meaning))
-    .map(e => ({
-      meaning: e.meaning,
-      score: scoreSimilarity(answer, e.meaning) + (Math.abs(e.meaning.length - answer.length) <= 3 ? 0.3 : 0),
-    }));
-  // 取相似度前 50% 中隨機挑(避免每次都同一組)
+    .map(e => {
+      let score = 0;
+      // 共用字數
+      const tChars = new Set(targetMeaning);
+      let shared = 0;
+      for (const ch of e.meaning) if (tChars.has(ch)) shared++;
+      score += shared * 0.5;
+      // 字數差距越小越好
+      const lenDiff = Math.abs(e.meaning.length - targetLen);
+      if (lenDiff <= 2) score += 1;
+      else if (lenDiff <= 5) score += 0.5;
+      return { meaning: e.meaning, score };
+    });
   candidates.sort((a, b) => b.score - a.score);
-  const topHalf = candidates.slice(0, Math.max(n * 4, Math.floor(candidates.length * 0.5)));
+  // 在前 40% 中隨機挑(分數高優先,但有隨機性避免每次同一組)
+  const topPool = candidates.slice(0, Math.max(n * 3, Math.floor(candidates.length * 0.4)));
   const picked = [];
-  const usedMeanings = new Set();
-  for (const c of shuffle(topHalf)) {
-    if (usedMeanings.has(c.meaning)) continue;
+  const used = new Set();
+  for (const c of shuffle(topPool)) {
+    if (used.has(c.meaning)) continue;
     picked.push(c.meaning);
-    usedMeanings.add(c.meaning);
+    used.add(c.meaning);
     if (picked.length >= n) break;
   }
-  // 不夠就從剩下的補
   if (picked.length < n) {
     for (const c of shuffle(candidates)) {
-      if (usedMeanings.has(c.meaning)) continue;
+      if (used.has(c.meaning)) continue;
       picked.push(c.meaning);
-      usedMeanings.add(c.meaning);
+      used.add(c.meaning);
       if (picked.length >= n) break;
     }
   }
